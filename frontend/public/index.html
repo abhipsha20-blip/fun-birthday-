@@ -1,0 +1,1657 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffd1e1">
+<meta name="description" content="It's my birthday — a tiny bday hub with notes, brews, bouquets and wishlist roulette." />
+<title>It's my birthday 🎂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ---------- BASE / THEME ---------- */
+  :root {
+    --bg1: #cfe7ff;
+    --bg2: #fff7d6;
+    --bg3: #ffe1ec;
+    --ink: #4a4a6a;
+    --ink-soft: #7a7a9a;
+    --blue: #a8d4ff;
+    --blue-deep: #6fb1ff;
+    --yellow: #ffe89a;
+    --pink: #ffc6d9;
+    --pink-deep: #ff9bbb;
+    --white: #ffffff;
+    --shadow: 0 10px 30px rgba(120, 140, 200, 0.18);
+    --shadow-soft: 0 6px 18px rgba(120, 140, 200, 0.12);
+    --radius: 22px;
+    --radius-sm: 14px;
+    --font: 'Quicksand', 'Nunito', system-ui, -apple-system, sans-serif;
+    --font-display: 'Caveat Brush', 'Pacifico', cursive;
+    --font-fun: 'Fredoka', 'Quicksand', sans-serif;
+    --mono: 'Courier New', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font);
+    color: var(--ink);
+    background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 50%, var(--bg3) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* React mount stays invisible */
+  #root { display: none; }
+
+  /* ambient floating layer */
+  #floatLayer {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .floater {
+    position: absolute;
+    bottom: -40px;
+    font-size: 22px;
+    opacity: 0.7;
+    animation: floatUp linear forwards;
+    user-select: none;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .page { position: relative; z-index: 2; min-height: 100vh; padding: 28px 18px 80px; }
+  .hidden { display: none !important; }
+  .center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ---------- LANDING ---------- */
+  #landing {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 24px;
+  }
+  #landing .cake {
+    font-size: 90px;
+    animation: bob 3s ease-in-out infinite;
+    filter: drop-shadow(0 8px 14px rgba(255,155,187,0.35));
+  }
+  @keyframes bob {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50%     { transform: translateY(-12px) rotate(3deg); }
+  }
+  #landing h1 {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 9vw, 88px);
+    margin-top: 14px;
+    color: var(--ink);
+    letter-spacing: 1.5px;
+    line-height: 1.1;
+    transform: rotate(-2deg);
+  }
+  #landing p {
+    margin-top: 8px;
+    font-size: clamp(16px, 2.4vw, 20px);
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 16px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--pink) 100%);
+    color: #3a3a5a;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+  .btn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 30px rgba(255,155,187,0.35); filter: brightness(1.05); }
+  .btn:active { transform: translateY(0) scale(0.98); }
+  .btn.ghost {
+    background: rgba(255,255,255,0.7);
+    color: var(--ink);
+    backdrop-filter: blur(6px);
+  }
+  .btn.small { padding: 10px 18px; font-size: 14px; }
+  .btn.enter {
+    margin-top: 28px;
+    padding: 18px 40px;
+    font-size: 18px;
+    background: linear-gradient(135deg, #ffd1e1 0%, #b9deff 100%);
+  }
+
+  /* ---------- HEADER ---------- */
+  header.topbar {
+    max-width: 980px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+  }
+  .brand { font-weight: 800; font-size: 18px; }
+  .brand small { color: var(--ink-soft); font-weight: 600; }
+  .topbar nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .topbar nav button {
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.8);
+    color: var(--ink);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .topbar nav button:hover { transform: translateY(-1px); background: var(--yellow); }
+  .topbar nav button.active { background: linear-gradient(135deg, var(--blue), var(--pink)); }
+
+  /* ---------- MAIN PAGE ---------- */
+  .hero {
+    max-width: 980px; margin: 30px auto 0;
+    text-align: center;
+    padding: 36px 22px;
+    background: rgba(255,255,255,0.55);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+  }
+  .hero h2 { font-family: var(--font-fun); font-size: clamp(30px, 4.8vw, 46px); font-weight: 700; letter-spacing: 0.5px; }
+  .hero .greet { margin-top: 8px; font-size: 18px; color: var(--ink-soft); }
+  .hero .row { margin-top: 22px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* spin wheel */
+  .wheel-wrap { position: relative; width: 240px; height: 240px; margin: 26px auto 0; }
+  .wheel {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background:
+      conic-gradient(
+        from 0deg,
+        #ffd1e1 0deg 90deg,
+        #b9deff 90deg 180deg,
+        #fff1a8 180deg 270deg,
+        #d6f5d6 270deg 360deg
+      );
+    box-shadow: var(--shadow), inset 0 0 0 6px #fff;
+    transition: transform 4s cubic-bezier(0.17, 0.67, 0.21, 1);
+    overflow: hidden;
+  }
+  .wseg {
+    position: absolute;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    left: 50%; top: 50%;
+    margin: -22px 0 0 -22px;
+  }
+  .wseg.s0 { transform: translate(60px, -60px); }
+  .wseg.s1 { transform: translate(60px, 60px); }
+  .wseg.s2 { transform: translate(-60px, 60px); }
+  .wseg.s3 { transform: translate(-60px, -60px); }
+  .wheel-ptr {
+    position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 22px solid #ff7aa7;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    z-index: 3;
+  }
+  .wheel-hub {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    background: #fff; border-radius: 50%;
+    box-shadow: var(--shadow-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+
+  /* ---------- SECTION CARDS ---------- */
+  .section {
+    max-width: 980px; margin: 28px auto 0;
+    padding: 28px 22px;
+    background: rgba(255,255,255,0.65);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+  }
+  .section h3 { font-family: var(--font-fun); font-size: 30px; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.3px; }
+  .section .sub { color: var(--ink-soft); margin-bottom: 18px; font-size: 14px; }
+
+  /* ---------- COFFEE MAKER ---------- */
+  .coffee-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 760px) { .coffee-grid { grid-template-columns: 1fr; } }
+
+  .glass-wrap { display: flex; flex-direction: column; align-items: center; }
+  .cup-stage {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 36px;
+  }
+  .glass {
+    position: relative;
+    width: 180px; height: 200px;
+    background: #fff;
+    border: 4px solid #f0f0f5;
+    border-radius: 18px 18px 32px 32px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .glass::before { display: none; }
+  /* Mug handle */
+  .glass::after {
+    content: "";
+    position: absolute;
+    right: -34px; top: 46px;
+    width: 36px; height: 80px;
+    border: 10px solid #f0f0f5;
+    border-left: none;
+    border-radius: 0 30px 30px 0;
+    pointer-events: none;
+  }
+  .saucer {
+    width: 230px; height: 14px;
+    background: #f0f0f5;
+    border-radius: 50%;
+    margin-top: 6px;
+    box-shadow: 0 8px 16px rgba(120,140,200,0.18);
+  }
+  .steam {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 12px;
+    pointer-events: none;
+    height: 30px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .steam.show { opacity: 1; }
+  .steam span {
+    display: block; width: 6px; height: 26px;
+    background: linear-gradient(to top, rgba(180,180,200,0.85), rgba(255,255,255,0));
+    border-radius: 4px;
+    animation: steam 2.4s ease-in-out infinite;
+    filter: blur(1px);
+  }
+  .steam span:nth-child(2) { animation-delay: 0.5s; }
+  .steam span:nth-child(3) { animation-delay: 1s; }
+  @keyframes steam {
+    0%   { transform: translateY(10px) scale(1); opacity: 0; }
+    30%  { opacity: 0.9; }
+    100% { transform: translateY(-22px) scale(0.6); opacity: 0; }
+  }
+  .drink-label {
+    margin-top: 16px; text-align: center;
+    font-family: var(--font-fun);
+    font-size: 18px; font-weight: 700;
+    color: var(--ink);
+    background: linear-gradient(135deg, #fff7e8, #ffe1ec);
+    padding: 12px 20px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-soft);
+    animation: pop 0.4s ease;
+  }
+  .drink-label .drink-emoji { font-size: 44px; display:block; margin-bottom: 4px; }
+  .layer { position: absolute; left: 0; right: 0; transition: height 0.9s ease, bottom 0.9s ease; }
+  .layer.milk   { background: linear-gradient(to top, #fff7e8, #ffffff); }
+  .layer.coffee { background: linear-gradient(to top, #5a3220, #8b5a3c); }
+  .layer.water  { background: linear-gradient(to top, #c9e4ff, #e6f3ff); }
+  .layer.foam   { background: linear-gradient(to top, #fff9ee, #ffffff); border-radius: 50% 50% 0 0 / 14px 14px 0 0; }
+  .layer.cream  { background: radial-gradient(circle at 50% 80%, #fff 0%, #fff 60%, #ffe8f0 100%); border-radius: 50% 50% 0 0 / 22px 22px 0 0; }
+  .ice {
+    position: absolute;
+    width: 22px; height: 22px;
+    background: rgba(200,230,255,0.85);
+    border: 2px solid rgba(255,255,255,0.85);
+    border-radius: 5px;
+    transform: rotate(15deg);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.6);
+  }
+  .straw {
+    position: absolute; top: -22px; left: 60%;
+    width: 10px; height: 90px;
+    background: linear-gradient(135deg, #ff9bbb, #ffd1e1);
+    border-radius: 6px;
+    transform: rotate(12deg);
+  }
+
+  .controls { display: flex; flex-direction: column; gap: 14px; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ctrl-row .label {
+    width: 100%;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .chip {
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: #fff;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s ease;
+  }
+  .chip:hover { transform: translateY(-1px); }
+  .chip.active {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--pink) 100%);
+    border-color: #fff;
+    color: #3a3a5a;
+  }
+  .chip.toggle.active { background: var(--yellow); }
+
+  /* receipt */
+  .receipt {
+    margin-top: 22px;
+    background: #fff;
+    border: 2px dashed #d8d8e8;
+    border-radius: 8px;
+    padding: 18px 22px;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: #333;
+    box-shadow: var(--shadow);
+    max-width: 360px;
+    margin-left: auto; margin-right: auto;
+    transform: rotate(-1.2deg);
+    line-height: 1.7;
+  }
+  .receipt h4 { text-align: center; font-size: 16px; letter-spacing: 2px; margin-bottom: 10px; font-family: var(--mono); }
+  .receipt .line { border-top: 1px dashed #aaa; margin: 8px 0; }
+  .receipt .row { display: flex; justify-content: space-between; gap: 10px; }
+  .receipt .row b { font-weight: 700; }
+  .receipt .total { font-size: 15px; font-weight: 800; text-align: center; margin-top: 8px; }
+  .receipt .footer { text-align: center; margin-top: 10px; color: #777; font-size: 12px; }
+  .receipt-actions { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+
+  /* ---------- GIFT ---------- */
+  .gift-out {
+    margin-top: 16px;
+    padding: 22px;
+    background: linear-gradient(135deg, #fff1a8, #ffd1e1);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    min-height: 70px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-soft);
+    transition: opacity 0.25s ease;
+  }
+
+  /* ---------- MESSAGE WALL ---------- */
+  .msg-form { display: flex; gap: 10px; flex-wrap: wrap; }
+  .msg-form input {
+    flex: 1; min-width: 220px;
+    padding: 14px 18px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #fff;
+    font-family: var(--font);
+    font-size: 15px;
+    color: var(--ink);
+    box-shadow: var(--shadow-soft);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .msg-form input:focus { border-color: var(--blue-deep); }
+  .msg-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+  }
+  .sticky {
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: var(--shadow-soft);
+    transform: rotate(var(--r, -1deg));
+    word-break: break-word;
+    font-size: 14px;
+    animation: pop 0.4s ease;
+  }
+  .sticky b { display: block; font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
+  @keyframes pop {
+    0% { transform: scale(0.7) rotate(var(--r, -1deg)); opacity: 0;}
+    100% { transform: scale(1) rotate(var(--r, -1deg)); opacity: 1; }
+  }
+  .empty-note { color: var(--ink-soft); font-style: italic; padding: 10px; }
+
+  /* ---------- BOUQUET ---------- */
+  .flower-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 16px auto;
+    max-width: 480px;
+  }
+  @media (max-width: 540px){ .flower-grid { grid-template-columns: repeat(3, 1fr); } }
+  .flower-btn {
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: #fff;
+    border-radius: var(--radius-sm);
+    padding: 14px 8px;
+    font-size: 32px;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.2s ease, background 0.2s;
+  }
+  .flower-btn:hover { transform: translateY(-3px) scale(1.05); }
+  .flower-btn .name { display: block; font-size: 11px; color: var(--ink-soft); margin-top: 4px; font-weight: 700;}
+  .bouquet-stage {
+    margin-top: 14px;
+    min-height: 220px;
+    background: linear-gradient(135deg, #fff7e8, #ffe1ec);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: 8px;
+    box-shadow: inset 0 0 0 2px #fff;
+    position: relative;
+  }
+  .bouquet-stage .picked {
+    font-size: 50px;
+    animation: sway 2.4s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  .bouquet-stage .picked:nth-child(2n) { animation-delay: 0.3s; }
+  .bouquet-stage .picked:nth-child(3n) { animation-delay: 0.6s; }
+  @keyframes sway {
+    0%,100% { transform: rotate(-6deg); }
+    50%     { transform: rotate(6deg); }
+  }
+  /* Wrapped bouquet */
+  .wrapped {
+    position: relative;
+    width: 160px; height: 200px;
+    margin: 0 auto;
+    animation: pop 0.5s ease;
+    transform: rotate(-3deg);
+  }
+  .wrapped .flowers {
+    position: absolute;
+    top: -6px; left: 50%; transform: translateX(-50%);
+    width: 150px;
+    display: flex; gap: 2px; justify-content: center; flex-wrap: wrap;
+    z-index: 3;
+  }
+  .wrapped .flowers span {
+    font-size: 38px;
+    display: inline-block;
+    animation: sway 2.4s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  .wrapped .flowers span:nth-child(2) { animation-delay: 0.3s; margin-top: -8px; }
+  .wrapped .flowers span:nth-child(3) { animation-delay: 0.6s; }
+  .wrapped .flowers span:nth-child(4) { animation-delay: 0.9s; margin-top: -6px; }
+  .wrapped .flowers span:nth-child(5) { animation-delay: 1.2s; }
+  .wrapped .wrap-paper {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 70px solid transparent;
+    border-right: 70px solid transparent;
+    border-bottom: 130px solid #ffd1e1;
+    z-index: 1;
+    filter: drop-shadow(0 8px 12px rgba(255,155,187,0.35));
+  }
+  .wrapped .wrap-inner {
+    position: absolute;
+    bottom: 6px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 56px solid transparent;
+    border-right: 56px solid transparent;
+    border-bottom: 110px solid #b9deff;
+    z-index: 2;
+    opacity: 0.85;
+  }
+  .wrapped .ribbon {
+    position: absolute;
+    bottom: 46px; left: 50%;
+    transform: translateX(-50%) rotate(-4deg);
+    width: 96px; height: 10px;
+    background: linear-gradient(90deg, #ff7aa7, #ffb3cc, #ff7aa7);
+    border-radius: 4px;
+    z-index: 4;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  }
+  .wrapped .bow {
+    position: absolute;
+    bottom: 38px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    z-index: 5;
+    animation: bob 2s ease-in-out infinite;
+  }
+  .wrapped .tail-l, .wrapped .tail-r {
+    position: absolute;
+    bottom: 4px;
+    width: 8px; height: 42px;
+    background: linear-gradient(to bottom, #ff7aa7, #ffb3cc);
+    border-radius: 4px;
+    z-index: 3;
+  }
+  .wrapped .tail-l { left: calc(50% - 16px); transform: rotate(12deg); }
+  .wrapped .tail-r { left: calc(50% + 8px); transform: rotate(-12deg); }
+  .bouquet-out {
+    margin-top: 14px;
+    padding: 18px;
+    background: #fff;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-soft);
+    text-align: center;
+    font-weight: 700;
+    min-height: 56px;
+  }
+
+  /* --- Gift Wall gallery --- */
+  .gifts-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    margin: 6px 0 18px;
+  }
+  .gtab {
+    cursor: pointer; border: none;
+    font-family: var(--font); font-weight: 700; font-size: 13px;
+    padding: 9px 14px; border-radius: 999px;
+    background: rgba(255,255,255,0.85);
+    color: var(--ink);
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.2s, background 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .gtab:hover { transform: translateY(-1px); }
+  .gtab.active { background: linear-gradient(135deg, var(--blue), var(--pink)); }
+  .gcount {
+    background: rgba(255,255,255,0.85);
+    border-radius: 999px;
+    font-size: 11px; padding: 1px 7px;
+    color: var(--ink);
+  }
+  .gifts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+    margin-top: 6px;
+  }
+  .gifts-list {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-top: 6px;
+  }
+  .gift-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: var(--shadow-soft);
+    text-align: center;
+    animation: pop 0.4s ease;
+    position: relative;
+  }
+  .gift-card .by {
+    font-size: 12px; color: var(--ink-soft);
+    margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 700;
+  }
+  .gift-card .ttl {
+    font-family: var(--font-fun);
+    font-size: 18px; font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .gift-card .meta { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+  .gift-card .when { margin-top: 8px; font-size: 11px; color: var(--ink-soft); font-style: italic; }
+
+  /* Mini mug for gift cards */
+  .mini-mug {
+    position: relative;
+    width: 70px; height: 80px;
+    margin: 4px auto 8px;
+    background: #fff;
+    border: 3px solid #f0f0f5;
+    border-radius: 8px 8px 14px 14px;
+    overflow: hidden;
+  }
+  .mini-mug::after {
+    content: "";
+    position: absolute;
+    right: -16px; top: 18px;
+    width: 18px; height: 32px;
+    border: 4px solid #f0f0f5;
+    border-left: none;
+    border-radius: 0 14px 14px 0;
+  }
+  .mini-mug .ml-base { position: absolute; left:0; right:0; bottom:0; }
+  .mini-mug .ml-milk  { background: linear-gradient(to top, #fff7e8, #ffffff); }
+  .mini-mug .ml-water { background: linear-gradient(to top, #c9e4ff, #e6f3ff); }
+  .mini-mug .ml-coffee { background: linear-gradient(to top, #5a3220, #8b5a3c); }
+  .mini-mug .ml-foam { background: #fffaf0; }
+  .mini-mug .ml-cream { background: radial-gradient(circle at 50% 80%, #fff, #ffe8f0); border-radius: 50% 50% 0 0 / 8px 8px 0 0;}
+  .mini-mug .ml-ice {
+    position: absolute; width: 8px; height: 8px;
+    background: rgba(200,230,255,0.85);
+    border: 1.5px solid rgba(255,255,255,0.85);
+    border-radius: 2px; transform: rotate(15deg);
+  }
+
+  /* Mini bouquet */
+  .mini-bouquet {
+    position: relative;
+    width: 90px; height: 100px;
+    margin: 4px auto 8px;
+  }
+  .mini-bouquet .mflowers {
+    position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 1px; justify-content: center;
+    width: 90px; flex-wrap: wrap;
+    z-index: 3;
+  }
+  .mini-bouquet .mflowers span { font-size: 22px; }
+  .mini-bouquet .mwrap {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 36px solid transparent;
+    border-right: 36px solid transparent;
+    border-bottom: 64px solid #ffd1e1;
+    z-index: 1;
+  }
+  .mini-bouquet .mwrap2 {
+    position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 28px solid transparent;
+    border-right: 28px solid transparent;
+    border-bottom: 52px solid #b9deff;
+    z-index: 2;
+    opacity: 0.85;
+  }
+  .mini-bouquet .mribbon {
+    position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+    width: 50px; height: 5px;
+    background: linear-gradient(90deg, #ff7aa7, #ffb3cc);
+    border-radius: 3px;
+    z-index: 4;
+  }
+  .mini-bouquet .mbow {
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+    font-size: 16px; z-index: 5;
+  }
+  .wishcard {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: var(--shadow-soft);
+    display: flex; flex-direction: column; gap: 4px;
+    animation: pop 0.4s ease;
+  }
+  .wishcard .by { font-size: 12px; color: var(--ink-soft); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
+  .wishcard .txt { font-size: 15px; }
+  .wishcard .when { font-size: 11px; color: var(--ink-soft); font-style: italic; margin-top: 2px;}
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #fff;
+    padding: 12px 22px;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    font-weight: 700;
+    z-index: 1000;
+    transition: transform 0.4s ease;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ---------- CONFETTI ---------- */
+  #confettiCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+  /* ---------- NAME PROMPT ---------- */
+  .modal-back {
+    position: fixed; inset: 0;
+    background: rgba(70,80,120,0.35);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1500;
+    padding: 20px;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 24px;
+    padding: 26px;
+    max-width: 420px; width: 100%;
+    box-shadow: var(--shadow);
+    text-align: center;
+    animation: pop 0.3s ease;
+  }
+  .modal h3 { margin-bottom: 10px; }
+  .modal p { color: var(--ink-soft); margin-bottom: 16px; font-size: 14px;}
+  .modal input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #eee;
+    border-radius: 999px;
+    font-family: var(--font);
+    font-size: 16px;
+    outline: none;
+    text-align: center;
+  }
+  .modal input:focus { border-color: var(--blue-deep); }
+  .modal .actions { margin-top: 16px; display: flex; gap: 10px; justify-content: center; }
+
+  @media (max-width: 540px) {
+    .topbar nav button { font-size: 12px; padding: 8px 11px; }
+    .brand { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- React mount point (kept invisible; React app is intentionally inert) -->
+<div id="root"></div>
+
+<!-- Floating ambient layer -->
+<div id="floatLayer"></div>
+<canvas id="confettiCanvas"></canvas>
+
+<!-- ============ LANDING ============ -->
+<section id="landing" class="page">
+  <div class="cake">🎂</div>
+  <h1>It's my birthday 🎉</h1>
+  <p>Enter if you dare</p>
+  <button class="btn enter" id="enterBtn" data-testid="landing-enter-btn">Enter ✨</button>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="app" class="page hidden">
+  <header class="topbar">
+    <div class="brand">✨ Birthday Hub <small id="hiName"></small></div>
+    <nav>
+      <button data-go="main" class="active" data-testid="nav-home">🏠 Home</button>
+      <button data-go="coffee" data-testid="nav-coffee">☕ Coffee</button>
+      <button data-go="gift" data-testid="nav-gift">🎁 Gift</button>
+      <button data-go="msg" data-testid="nav-msg">💌 Messages</button>
+      <button data-go="bouquet" data-testid="nav-bouquet">🌸 Bouquet</button>
+      <button data-go="mygifts" data-testid="nav-mygifts">🎁 Gift Wall</button>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <div id="view-main">
+    <div class="hero">
+      <h2>Welcome to my chaos ✨</h2>
+      <p class="greet">Hi <span id="userGreet" data-testid="user-greet"></span> 👀</p>
+      <div class="wheel-wrap">
+        <div class="wheel-ptr"></div>
+        <div class="wheel" id="wheel">
+          <span class="wseg s0">☕</span>
+          <span class="wseg s1">🎁</span>
+          <span class="wseg s2">💌</span>
+          <span class="wseg s3">🌸</span>
+        </div>
+        <div class="wheel-hub">🎀</div>
+      </div>
+      <div class="row">
+        <button class="btn" id="spinBtn" data-testid="spin-wheel-btn">Spin the Wheel 🎡</button>
+        <button class="btn ghost small" id="resetName" data-testid="change-name-btn">Change Name</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COFFEE -->
+  <div id="view-coffee" class="hidden">
+    <div class="section">
+      <h3>☕ Buy Me Coffee</h3>
+
+      <div class="coffee-grid">
+        <div class="glass-wrap">
+          <div class="cup-stage">
+            <div class="steam show" id="steam"><span></span><span></span><span></span></div>
+            <div class="glass" id="glass"></div>
+            <div class="saucer"></div>
+          </div>
+          <div style="margin-top: 16px;">
+            <button class="btn" id="brewBtn" data-testid="brew-coffee-btn">Brew it ☕</button>
+          </div>
+          <div id="drinkLabel" class="drink-label hidden"></div>
+        </div>
+
+        <div class="controls">
+          <div class="ctrl-row" data-group="base">
+            <span class="label">Base</span>
+            <button class="chip active" data-val="Milk">🥛 Milk</button>
+            <button class="chip" data-val="Water">💧 Water</button>
+          </div>
+          <div class="ctrl-row" data-group="coffee">
+            <span class="label">Coffee Type</span>
+            <button class="chip active" data-val="Espresso">Espresso</button>
+            <button class="chip" data-val="Cold Brew">Cold Brew</button>
+            <button class="chip" data-val="Instant">Instant</button>
+          </div>
+          <div class="ctrl-row" data-group="sweet">
+            <span class="label">Sweetness</span>
+            <button class="chip active" data-val="No sugar">No sugar</button>
+            <button class="chip" data-val="1 tsp">1 tsp</button>
+            <button class="chip" data-val="2 tsp">2 tsp</button>
+          </div>
+          <div class="ctrl-row" data-group="extras">
+            <span class="label">Extras</span>
+            <button class="chip toggle" data-val="Ice">🧊 Ice</button>
+            <button class="chip toggle" data-val="Foam">☁️ Foam</button>
+            <button class="chip toggle" data-val="Whipped Cream">🍦 Whipped</button>
+          </div>
+          <div class="ctrl-row" data-group="flavor">
+            <span class="label">Flavor</span>
+            <button class="chip active" data-val="None">None</button>
+            <button class="chip" data-val="Vanilla">Vanilla</button>
+            <button class="chip" data-val="Caramel">Caramel</button>
+            <button class="chip" data-val="Hazelnut">Hazelnut</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="receiptArea"></div>
+    </div>
+  </div>
+
+  <!-- GIFT -->
+  <div id="view-gift" class="hidden">
+    <div class="section center">
+      <h3>🎁 The Wishlist Roulette</h3>
+      <p class="sub">Stuck on what to gift me? Press the button.</p>
+      <button class="btn" id="giftBtn" data-testid="gift-roulette-btn">What should I gift her? 🎀</button>
+      <div class="gift-out" id="giftOut" data-testid="gift-out">spin a suggestion 🎀</div>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div id="view-msg" class="hidden">
+    <div class="section">
+      <h3>💌 Message Wall</h3>
+      <p class="sub">Drop a sweet little note for me 💌</p>
+      <form class="msg-form" id="msgForm">
+        <input type="text" id="msgInput" maxlength="180" placeholder="Type your birthday note…" data-testid="msg-input">
+        <button class="btn" type="submit" data-testid="msg-post-btn">Post 💌</button>
+        <button class="btn ghost small" type="button" id="clearMsgs" data-testid="msg-clear-btn">Clear All</button>
+      </form>
+      <div class="msg-grid" id="msgGrid" data-testid="msg-grid"></div>
+    </div>
+  </div>
+
+  <!-- BOUQUET -->
+  <div id="view-bouquet" class="hidden">
+    <div class="section">
+      <h3>🌸 Make Me a Bouquet</h3>
+      <p class="sub">Pick up to 5 flowers. Each one says something about how you see me.</p>
+
+      <div class="flower-grid" id="flowerGrid">
+        <button class="flower-btn" data-f="Rose">🌹<span class="name">Rose</span></button>
+        <button class="flower-btn" data-f="Tulip">🌷<span class="name">Tulip</span></button>
+        <button class="flower-btn" data-f="Sunflower">🌻<span class="name">Sunflower</span></button>
+        <button class="flower-btn" data-f="Daisy">🌼<span class="name">Daisy</span></button>
+        <button class="flower-btn" data-f="Cherry Blossom">🌸<span class="name">Cherry</span></button>
+      </div>
+
+      <div class="bouquet-stage" id="bouquetStage">
+        <span style="color: var(--ink-soft); font-style: italic;">tap a flower to add it 🌷</span>
+      </div>
+
+      <div class="row" style="margin-top: 14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn" id="wrapBtn" data-testid="wrap-bouquet-btn">Wrap it 💐</button>
+        <button class="btn ghost small" id="clearBouquet" data-testid="clear-bouquet-btn">Clear</button>
+      </div>
+
+      <div class="bouquet-out" id="bouquetOut" data-testid="bouquet-out">your bouquet vibes will appear here 🌸</div>
+    </div>
+  </div>
+
+  <!-- GIFT WALL (was My Gifts) -->
+  <div id="view-mygifts" class="hidden">
+    <div class="section">
+      <h3>🎁 Gift Wall</h3>
+      <p class="sub">Everything anyone has brewed, wrapped or wished for me. Saved right here on this device 💛</p>
+
+      <div class="gifts-tabs">
+        <button class="gtab active" data-gtab="coffee" data-testid="tab-coffee">☕ Coffees <span class="gcount" id="cntCoffee">0</span></button>
+        <button class="gtab" data-gtab="bouquet" data-testid="tab-bouquet">💐 Bouquets <span class="gcount" id="cntBouquet">0</span></button>
+        <button class="gtab" data-gtab="wishlist" data-testid="tab-wishlist">🎀 Wishlist <span class="gcount" id="cntWishlist">0</span></button>
+        <button class="btn ghost small" id="refreshGifts" style="margin-left:auto;" data-testid="refresh-gifts-btn">↻ Refresh</button>
+        <button class="btn ghost small" id="clearGifts" data-testid="clear-gifts-btn">Clear Wall</button>
+      </div>
+
+      <div id="giftsCoffee" class="gifts-grid"></div>
+      <div id="giftsBouquet" class="gifts-grid hidden"></div>
+      <div id="giftsWishlist" class="gifts-list hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NAME MODAL ============ -->
+<div id="nameModal" class="modal-back hidden">
+  <div class="modal">
+    <h3>Hi there 💌</h3>
+    <p>What should I call you?</p>
+    <input type="text" id="nameInput" maxlength="20" placeholder="your name…" data-testid="name-input">
+    <div class="actions">
+      <button class="btn" id="saveName" data-testid="save-name-btn">Save ✨</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   STORAGE KEYS
+============================================================ */
+const LS_USER     = 'bdayUser';
+const LS_MSGS     = 'bdayMessages';
+const LS_COFFEES  = 'bdayCoffees';
+const LS_BOUQUETS = 'bdayBouquets';
+const LS_WISHES   = 'bdayWishes';
+
+let username = localStorage.getItem(LS_USER) || '';
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function escapeHtml(str){
+  return String(str)
+    .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+    .replaceAll('"','&quot;').replaceAll("'",'&#039;');
+}
+function lsGet(key){
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+  catch { return []; }
+}
+function lsSet(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+function lsPush(key, item){
+  const arr = lsGet(key);
+  arr.push(item);
+  lsSet(key, arr);
+  return arr;
+}
+function fmtTime(iso){
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  } catch { return ''; }
+}
+
+/* ============================================================
+   FLOATING HEARTS / SPARKLES
+============================================================ */
+(function spawnFloaters(){
+  const layer = document.getElementById('floatLayer');
+  const icons = ['💙','💖','✨','🌸','💛','⭐','🤍'];
+  setInterval(() => {
+    if (document.hidden) return;
+    const f = document.createElement('div');
+    f.className = 'floater';
+    f.textContent = icons[Math.floor(Math.random()*icons.length)];
+    f.style.left = Math.random()*100 + 'vw';
+    const dur = 8 + Math.random()*10;
+    f.style.animationDuration = dur + 's';
+    f.style.fontSize = (16 + Math.random()*18) + 'px';
+    f.style.opacity = 0.5 + Math.random()*0.4;
+    layer.appendChild(f);
+    setTimeout(()=>f.remove(), dur*1000 + 200);
+  }, 700);
+})();
+
+/* ============================================================
+   CONFETTI
+============================================================ */
+const confetti = (() => {
+  const cvs = document.getElementById('confettiCanvas');
+  const ctx = cvs.getContext('2d');
+  let pieces = [];
+  let raf = null;
+
+  function resize(){ cvs.width = window.innerWidth; cvs.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const colors = ['#a8d4ff','#ffc6d9','#ffe89a','#b9deff','#ff9bbb','#ffffff','#fff1a8'];
+
+  function burst(count = 140){
+    for (let i = 0; i < count; i++){
+      pieces.push({
+        x: cvs.width/2 + (Math.random()-0.5)*200,
+        y: cvs.height/3 + (Math.random()-0.5)*60,
+        vx: (Math.random()-0.5)*10,
+        vy: -Math.random()*12 - 4,
+        g: 0.32 + Math.random()*0.18,
+        size: 6 + Math.random()*8,
+        rot: Math.random()*Math.PI*2,
+        vr: (Math.random()-0.5)*0.3,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        shape: Math.random() > 0.5 ? 'rect' : 'circ',
+        life: 0,
+        maxLife: 140 + Math.random()*60
+      });
+    }
+    if (!raf) loop();
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    pieces.forEach(p => {
+      p.vy += p.g;
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, 1 - p.life/p.maxLife);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      else { ctx.beginPath(); ctx.arc(0,0,p.size/2,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    });
+    pieces = pieces.filter(p => p.life < p.maxLife && p.y < cvs.height + 40);
+    if (pieces.length){ raf = requestAnimationFrame(loop); }
+    else { ctx.clearRect(0,0,cvs.width,cvs.height); raf = null; }
+  }
+  return { burst };
+})();
+
+/* ============================================================
+   TOAST
+============================================================ */
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2200);
+}
+
+/* ============================================================
+   NAME MODAL
+============================================================ */
+const nameModal = document.getElementById('nameModal');
+const nameInput = document.getElementById('nameInput');
+const saveNameBtn = document.getElementById('saveName');
+
+function askName(cb){
+  nameModal.classList.remove('hidden');
+  nameInput.value = username || '';
+  setTimeout(()=>nameInput.focus(), 50);
+  const handler = () => {
+    const v = nameInput.value.trim();
+    if (!v) { nameInput.focus(); toast('please tell me your name 💌'); return; }
+    username = v;
+    localStorage.setItem(LS_USER, v);
+    nameModal.classList.add('hidden');
+    saveNameBtn.removeEventListener('click', handler);
+    nameInput.removeEventListener('keydown', keyHandler);
+    refreshUserUI();
+    if (cb) cb();
+  };
+  const keyHandler = (e) => { if (e.key === 'Enter') handler(); };
+  saveNameBtn.addEventListener('click', handler);
+  nameInput.addEventListener('keydown', keyHandler);
+}
+
+function refreshUserUI(){
+  const greet = document.getElementById('userGreet');
+  const hi = document.getElementById('hiName');
+  if (username){
+    if (greet) greet.textContent = username;
+    if (hi) hi.textContent = `· hi ${username} 💛`;
+  } else {
+    if (greet) greet.textContent = '';
+    if (hi) hi.textContent = '';
+  }
+}
+
+/* ============================================================
+   ENTER FLOW
+============================================================ */
+document.getElementById('enterBtn').addEventListener('click', () => {
+  confetti.burst(180);
+  const start = () => {
+    document.getElementById('landing').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    refreshUserUI();
+    renderMessages();
+  };
+  // Always require a name on entry
+  if (!username) askName(start);
+  else start();
+});
+
+document.getElementById('resetName').addEventListener('click', () => {
+  askName(()=> toast(`got it, ${username}! ✨`));
+});
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+const views = ['main','coffee','gift','msg','bouquet','mygifts'];
+function go(view){
+  views.forEach(v => {
+    document.getElementById('view-'+v).classList.toggle('hidden', v !== view);
+  });
+  document.querySelectorAll('.topbar nav button').forEach(b => {
+    b.classList.toggle('active', b.dataset.go === view);
+  });
+  if (view === 'mygifts') loadGiftWall();
+  if (view === 'msg') renderMessages();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('.topbar nav button').forEach(b => {
+  b.addEventListener('click', () => go(b.dataset.go));
+});
+
+/* ============================================================
+   SPIN WHEEL
+============================================================ */
+const wheel = document.getElementById('wheel');
+let wheelRot = 0;
+document.getElementById('spinBtn').addEventListener('click', () => {
+  const map = [
+    { route: 'coffee',  center: 45  },
+    { route: 'gift',    center: 135 },
+    { route: 'msg',     center: 225 },
+    { route: 'bouquet', center: 315 },
+  ];
+  const idx = Math.floor(Math.random() * map.length);
+  const target = map[idx];
+  const targetMod = (360 - target.center) % 360;
+  const currentMod = ((wheelRot % 360) + 360) % 360;
+  let delta = (targetMod - currentMod + 360) % 360;
+  delta += 360 * 5;
+  wheelRot += delta;
+  wheel.style.transform = `rotate(${wheelRot}deg)`;
+  setTimeout(() => {
+    confetti.burst(80);
+    go(target.route);
+    toast(`Wheel says: ${target.route} ✨`);
+  }, 4100);
+});
+
+/* ============================================================
+   COFFEE MAKER
+============================================================ */
+const coffeeState = {
+  base: 'Milk',
+  coffee: 'Espresso',
+  sweet: 'No sugar',
+  flavor: 'None',
+  extras: new Set()
+};
+
+document.querySelectorAll('.ctrl-row').forEach(row => {
+  const group = row.dataset.group;
+  row.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (group === 'extras'){
+        chip.classList.toggle('active');
+        const v = chip.dataset.val;
+        if (coffeeState.extras.has(v)) coffeeState.extras.delete(v);
+        else coffeeState.extras.add(v);
+      } else {
+        row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        coffeeState[group] = chip.dataset.val;
+      }
+    });
+  });
+});
+
+function drinkName(s){
+  const hasFoam = s.extras.has('Foam');
+  const hasIce = s.extras.has('Ice');
+  if (s.base === 'Milk' && s.coffee === 'Espresso' && hasFoam) return 'Cappuccino';
+  if (s.base === 'Milk' && s.coffee === 'Espresso') return 'Latte';
+  if (s.base === 'Water' && s.coffee === 'Espresso') return 'Americano';
+  if (s.base === 'Milk' && s.coffee === 'Cold Brew' && hasIce) return 'Iced Cold Brew Latte';
+  if (s.base === 'Milk' && s.coffee === 'Cold Brew') return 'Cold Brew Latte';
+  if (s.coffee === 'Instant' && s.base === 'Milk') return 'Simple Milk Coffee';
+  if (s.coffee === 'Instant' && s.base === 'Water') return 'Instant Black';
+  if (s.base === 'Water' && s.coffee === 'Cold Brew') return 'Black Cold Brew';
+  return 'Mystery Brew';
+}
+
+function buildGlass(){
+  const glass = document.getElementById('glass');
+  glass.innerHTML = '';
+  const s = coffeeState;
+  const stack = [];
+  if (s.base === 'Milk') stack.push({ cls:'milk', h: 38 });
+  else stack.push({ cls:'water', h: 30 });
+  stack.push({ cls:'coffee', h: 38 });
+  if (s.extras.has('Foam')) stack.push({ cls:'foam', h: 12 });
+  if (s.extras.has('Whipped Cream')) stack.push({ cls:'cream', h: 18 });
+
+  let bottom = 0;
+  stack.forEach((layer, i) => {
+    const div = document.createElement('div');
+    div.className = 'layer ' + layer.cls;
+    div.style.bottom = bottom + '%';
+    div.style.height = '0%';
+    glass.appendChild(div);
+    requestAnimationFrame(()=> {
+      setTimeout(()=> { div.style.height = layer.h + '%'; }, i*150);
+    });
+    bottom += layer.h;
+  });
+
+  if (s.extras.has('Ice')){
+    const positions = [{x:18,y:55},{x:60,y:62},{x:35,y:75},{x:75,y:80}];
+    positions.forEach((p,idx) => {
+      const ice = document.createElement('div');
+      ice.className = 'ice';
+      ice.style.left = p.x + '%';
+      ice.style.bottom = p.y + '%';
+      ice.style.transform = `rotate(${(idx*22)-15}deg)`;
+      glass.appendChild(ice);
+    });
+    const straw = document.createElement('div');
+    straw.className = 'straw';
+    glass.appendChild(straw);
+  }
+}
+
+function buildReceipt(){
+  const s = coffeeState;
+  const drink = drinkName(s);
+  const extras = [...s.extras];
+  const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const safeName = escapeHtml(username || 'Friend');
+  const flavorLine = s.flavor !== 'None' ? ' · Flavor: ' + escapeHtml(s.flavor) : '';
+  const html = `
+    <div class="receipt" id="receipt">
+      <h4>COFFEE RECEIPT ☕</h4>
+      <div class="line"></div>
+      <div class="row"><span>Name</span><b>${safeName}</b></div>
+      <div class="row"><span>Drink</span><b>${escapeHtml(drink)}</b></div>
+      <div class="row"><span>Base</span><b>${escapeHtml(s.base)}</b></div>
+      <div class="row"><span>Coffee</span><b>${escapeHtml(s.coffee)}</b></div>
+      <div class="row"><span>Extras</span><b>${escapeHtml(extras.length ? extras.join(', ') : 'None')}</b></div>
+      <div class="row"><span>Sweetness</span><b>${escapeHtml(s.sweet)}</b></div>
+      <div class="row"><span>Flavor</span><b>${escapeHtml(s.flavor)}</b></div>
+      <div class="row"><span>Time</span><b>${time}</b></div>
+      <div class="line"></div>
+      <div class="total">Total: ₹0 (it's my birthday 🎂)</div>
+      <div class="footer">Made with love 💙</div>
+    </div>
+    <p style="text-align:center; margin-top:10px;">
+      <b>${safeName}</b> made: <b>${escapeHtml(drink)}</b> ☕<br/>
+      <span style="color:var(--ink-soft);">Sweetness: ${escapeHtml(s.sweet)}${flavorLine}</span>
+    </p>
+  `;
+  document.getElementById('receiptArea').innerHTML = html;
+}
+
+document.getElementById('brewBtn').addEventListener('click', () => {
+  if (!username) { askName(()=> document.getElementById('brewBtn').click()); return; }
+  buildGlass();
+  setTimeout(() => {
+    buildReceipt();
+    showDrinkLabel();
+    saveCoffeeGift();
+  }, 600);
+  confetti.burst(50);
+});
+
+function saveCoffeeGift(){
+  const s = coffeeState;
+  lsPush(LS_COFFEES, {
+    id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+    name: username || 'anon',
+    drink: drinkName(s),
+    base: s.base,
+    coffee: s.coffee,
+    extras: [...s.extras],
+    sweetness: s.sweet,
+    flavor: s.flavor,
+    has_ice: s.extras.has('Ice'),
+    timestamp: new Date().toISOString()
+  });
+  toast('coffee saved to the gift wall ☕');
+}
+
+function showDrinkLabel(){
+  const s = coffeeState;
+  const label = document.getElementById('drinkLabel');
+  const emoji = s.extras.has('Ice') ? '🧋' : '☕';
+  label.innerHTML = `<span class="drink-emoji">${emoji}</span>${escapeHtml(username||'Friend')}'s ${escapeHtml(drinkName(s))}`;
+  label.classList.remove('hidden');
+  const steam = document.getElementById('steam');
+  if (s.extras.has('Ice')) steam.classList.remove('show');
+  else steam.classList.add('show');
+}
+
+/* ============================================================
+   GIFT GENERATOR
+============================================================ */
+const gifts = [
+  "Emotional support iced coffee ☕",
+  "Books she won't finish 📚",
+  "Sponsor her Europe dream 🗼",
+  "A polaroid camera for chaotic memories 📸",
+  "An obnoxiously large teddy bear 🧸",
+  "Spa day she'll keep cancelling 💆‍♀️",
+  "A handwritten letter that makes her cry (good cry) 💌",
+  "Concert tickets to her current obsession 🎤",
+  "A surprise weekend getaway 🌅",
+  "A really fancy candle she'll never burn 🕯️",
+  "Custom playlist + voice notes 🎧",
+  "A tiny plant she'll absolutely forget to water 🌱",
+  "Gold hoops, because duh 💫",
+  "A ring she'll pretend isn't a hint 💍",
+  "Therapy sessions paid for in advance 🌷"
+];
+document.getElementById('giftBtn').addEventListener('click', () => {
+  if (!username) { askName(()=> document.getElementById('giftBtn').click()); return; }
+  const g = gifts[Math.floor(Math.random()*gifts.length)];
+  const out = document.getElementById('giftOut');
+  out.style.opacity = 0;
+  setTimeout(()=> {
+    out.textContent = `✨ Suggestion: ${g}`;
+    out.style.opacity = 1;
+  }, 200);
+  confetti.burst(40);
+  lsPush(LS_WISHES, {
+    id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+    name: username || 'anon',
+    suggestion: g,
+    timestamp: new Date().toISOString()
+  });
+  toast('wish added to the gift wall 🎀');
+});
+
+/* ============================================================
+   MESSAGE WALL
+============================================================ */
+function renderMessages(){
+  const grid = document.getElementById('msgGrid');
+  if (!grid) return;
+  const msgs = lsGet(LS_MSGS);
+  if (!msgs.length){
+    grid.innerHTML = `<div class="empty-note">no notes yet… be the first 💌</div>`;
+    return;
+  }
+  const colors = ['#fff1a8','#ffd1e1','#b9deff','#d6f5d6','#ffe1ec','#cfe7ff'];
+  grid.innerHTML = msgs.slice().reverse().map((m,i) => {
+    const r = ((i*37)%9) - 4;
+    const c = colors[i%colors.length];
+    return `<div class="sticky" style="--r:${r}deg; background:${c};">
+      <b>${escapeHtml(m.name||'anon')}</b>${escapeHtml(m.text)}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('msgForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!username) { askName(()=> document.getElementById('msgForm').requestSubmit()); return; }
+  lsPush(LS_MSGS, { name: username, text, timestamp: new Date().toISOString() });
+  input.value = '';
+  renderMessages();
+  toast('Note posted 💌');
+  confetti.burst(30);
+});
+
+document.getElementById('clearMsgs').addEventListener('click', () => {
+  if (!confirm('Clear all messages from this device?')) return;
+  lsSet(LS_MSGS, []);
+  renderMessages();
+});
+
+/* ============================================================
+   BOUQUET
+============================================================ */
+const bouquet = [];
+const flowerEmoji = {
+  'Rose':'🌹','Tulip':'🌷','Sunflower':'🌻','Daisy':'🌼','Cherry Blossom':'🌸'
+};
+const flowerTrait = {
+  'Rose':'romantic & dramatic',
+  'Tulip':'soft & caring',
+  'Sunflower':'sunshine energy',
+  'Daisy':'innocent but chaotic',
+  'Cherry Blossom':'dreamy & emotional'
+};
+
+document.querySelectorAll('.flower-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (bouquet.length >= 5){
+      toast('Too much love 😭');
+      return;
+    }
+    bouquet.push(btn.dataset.f);
+    renderBouquet();
+  });
+});
+
+function renderBouquet(){
+  const stage = document.getElementById('bouquetStage');
+  if (!bouquet.length){
+    stage.innerHTML = `<span style="color: var(--ink-soft); font-style: italic;">tap a flower to add it 🌷</span>`;
+    return;
+  }
+  stage.innerHTML = bouquet.map(f => `<span class="picked">${flowerEmoji[f]}</span>`).join('');
+}
+
+document.getElementById('clearBouquet').addEventListener('click', () => {
+  bouquet.length = 0;
+  renderBouquet();
+  document.getElementById('bouquetOut').textContent = 'your bouquet vibes will appear here 🌸';
+});
+
+document.getElementById('wrapBtn').addEventListener('click', () => {
+  if (!username) { askName(()=> document.getElementById('wrapBtn').click()); return; }
+  const out = document.getElementById('bouquetOut');
+  const name = username || 'Someone';
+
+  if (bouquet.length === 0){
+    out.textContent = "empty bouquet?? that's bold 😶";
+    return;
+  }
+
+  renderWrapped();
+
+  let message = '';
+  if (bouquet.every(f => f === 'Rose')){
+    message = "okay who told you I'm in love??? 🌹💌";
+    confetti.burst(60);
+  } else if (bouquet.length >= 5 && new Set(bouquet).size === 5){
+    message = "this bouquet is chaotic but perfect 🌸✨";
+    confetti.burst(80);
+  } else {
+    const unique = new Set(bouquet);
+    const traits = [...unique].map(f => flowerTrait[f]).join(', ');
+    message = `${name} thinks I am: ${traits} 🌸`;
+    confetti.burst(40);
+  }
+  out.textContent = message;
+
+  lsPush(LS_BOUQUETS, {
+    id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+    name: username || 'anon',
+    flowers: [...bouquet],
+    message,
+    timestamp: new Date().toISOString()
+  });
+  toast('bouquet added to the gift wall 💐');
+});
+
+function renderWrapped(){
+  const stage = document.getElementById('bouquetStage');
+  const flowers = bouquet.map(f => `<span>${flowerEmoji[f]}</span>`).join('');
+  stage.innerHTML = `
+    <div class="wrapped">
+      <div class="flowers">${flowers}</div>
+      <div class="wrap-paper"></div>
+      <div class="wrap-inner"></div>
+      <div class="ribbon"></div>
+      <div class="bow">🎀</div>
+      <div class="tail-l"></div>
+      <div class="tail-r"></div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   GIFT WALL (localStorage)
+============================================================ */
+function loadGiftWall(){
+  const coffees  = lsGet(LS_COFFEES);
+  const bouquets = lsGet(LS_BOUQUETS);
+  const wishes   = lsGet(LS_WISHES);
+  document.getElementById('cntCoffee').textContent   = coffees.length;
+  document.getElementById('cntBouquet').textContent  = bouquets.length;
+  document.getElementById('cntWishlist').textContent = wishes.length;
+  renderCoffeeGifts(coffees);
+  renderBouquetGifts(bouquets);
+  renderWishlistGifts(wishes);
+}
+
+function miniMugHTML(c){
+  const extras = (c.extras || []);
+  const hasFoam = extras.includes('Foam');
+  const hasIce = extras.includes('Ice');
+  const hasCream = extras.includes('Whipped Cream');
+  const baseCls = c.base === 'Water' ? 'ml-water' : 'ml-milk';
+  const baseH = c.base === 'Water' ? 30 : 38;
+  let bottom = 0;
+  let html = '';
+  html += `<div class="ml-base ${baseCls}" style="bottom:${bottom}%;height:${baseH}%;"></div>`;
+  bottom += baseH;
+  html += `<div class="ml-base ml-coffee" style="bottom:${bottom}%;height:38%;"></div>`;
+  bottom += 38;
+  if (hasFoam)  { html += `<div class="ml-base ml-foam"  style="bottom:${bottom}%;height:12%;"></div>`; bottom += 12; }
+  if (hasCream) { html += `<div class="ml-base ml-cream" style="bottom:${bottom}%;height:18%;"></div>`; }
+  if (hasIce) {
+    html += `<div class="ml-ice" style="left:18%;bottom:55%;"></div>`;
+    html += `<div class="ml-ice" style="left:55%;bottom:62%;transform:rotate(-12deg);"></div>`;
+  }
+  return `<div class="mini-mug">${html}</div>`;
+}
+
+function miniBouquetHTML(b){
+  const flowers = (b.flowers || []).map(f => `<span>${flowerEmoji[f]||'🌷'}</span>`).join('');
+  return `<div class="mini-bouquet">
+    <div class="mflowers">${flowers}</div>
+    <div class="mwrap"></div>
+    <div class="mwrap2"></div>
+    <div class="mribbon"></div>
+    <div class="mbow">🎀</div>
+  </div>`;
+}
+
+function renderCoffeeGifts(items){
+  const grid = document.getElementById('giftsCoffee');
+  if (!items.length){
+    grid.innerHTML = `<div class="empty-note">no coffees brewed yet ☕</div>`;
+    return;
+  }
+  grid.innerHTML = items.slice().reverse().map(c => {
+    const extras = (c.extras||[]).length ? c.extras.join(', ') : 'None';
+    const flavor = c.flavor && c.flavor !== 'None' ? ' · '+escapeHtml(c.flavor) : '';
+    return `<div class="gift-card">
+      <div class="by">From ${escapeHtml(c.name)}</div>
+      ${miniMugHTML(c)}
+      <div class="ttl">${escapeHtml(c.drink)}</div>
+      <div class="meta">
+        ${escapeHtml(c.base)} · ${escapeHtml(c.coffee)}<br/>
+        ${escapeHtml(c.sweetness)}${flavor}<br/>
+        Extras: ${escapeHtml(extras)}
+      </div>
+      <div class="when">${fmtTime(c.timestamp)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBouquetGifts(items){
+  const grid = document.getElementById('giftsBouquet');
+  if (!items.length){
+    grid.innerHTML = `<div class="empty-note">no bouquets wrapped yet 💐</div>`;
+    return;
+  }
+  grid.innerHTML = items.slice().reverse().map(b => `
+    <div class="gift-card">
+      <div class="by">From ${escapeHtml(b.name)}</div>
+      ${miniBouquetHTML(b)}
+      <div class="meta">${escapeHtml(b.message || '')}</div>
+      <div class="when">${fmtTime(b.timestamp)}</div>
+    </div>
+  `).join('');
+}
+
+function renderWishlistGifts(items){
+  const list = document.getElementById('giftsWishlist');
+  if (!items.length){
+    list.innerHTML = `<div class="empty-note">no wishes spun yet 🎀</div>`;
+    return;
+  }
+  list.innerHTML = items.slice().reverse().map(w => `
+    <div class="wishcard">
+      <span class="by">${escapeHtml(w.name)}</span>
+      <span class="txt">${escapeHtml(w.suggestion)}</span>
+      <span class="when">${fmtTime(w.timestamp)}</span>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.gtab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.gtab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.gtab;
+    document.getElementById('giftsCoffee').classList.toggle('hidden',   tab !== 'coffee');
+    document.getElementById('giftsBouquet').classList.toggle('hidden',  tab !== 'bouquet');
+    document.getElementById('giftsWishlist').classList.toggle('hidden', tab !== 'wishlist');
+  });
+});
+document.getElementById('refreshGifts').addEventListener('click', loadGiftWall);
+document.getElementById('clearGifts').addEventListener('click', () => {
+  if (!confirm('Clear the entire gift wall on this device?')) return;
+  lsSet(LS_COFFEES, []);
+  lsSet(LS_BOUQUETS, []);
+  lsSet(LS_WISHES, []);
+  loadGiftWall();
+  toast('gift wall cleared ✨');
+});
+
+/* boot */
+refreshUserUI();
+</script>
+
+</body>
+</html>
